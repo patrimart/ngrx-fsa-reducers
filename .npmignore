@@ -1,0 +1,8 @@
+
+/purescript
+/node_modules
+/src
+.gitignore
+README.md
+tsconfig.ts
+tslint.json

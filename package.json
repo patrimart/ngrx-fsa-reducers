@@ -15,7 +15,7 @@
     "functional",
     "purescript"
   ],
-  "author": "Patrick Martin <bypatrickmartin@gmail.com>",
+  "author": "Patrick Martin",
   "license": "MIT",
   "devDependencies": {
     "ts-node": "^5.0.0",
@@ -26,5 +26,12 @@
   "peerDependencies": {
     "typescript-fsa": "^2.5.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patrimart/ngrx-fsa-reducers"
+  },
+  "bugs": {
+    "url": "https://github.com/patrimart/ngrx-fsa-reducers/issues"
+  }
 }

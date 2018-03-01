@@ -1,3 +1,4 @@
 
 node_modules/
 purescript/bower_components/
+package-lock.json
