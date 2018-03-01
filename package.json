@@ -1,6 +1,6 @@
 {
   "name": "@ngrx-fsa/reducers",
-  "version": "1.0.0",
+  "version": "0.5.0",
   "description": "Reducer builder library.",
   "main": "lib/index.js",
   "scripts": {
