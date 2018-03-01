@@ -1,0 +1,28 @@
+{
+  "name": "@ngrx-fsa/reducers",
+  "version": "1.0.0",
+  "description": "Reducer builder library.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ngrx",
+    "reducers",
+    "redux",
+    "fsa",
+    "flux",
+    "functional",
+    "purescript"
+  ],
+  "author": "Patrick Martin <bypatrickmartin@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "ts-node": "^5.0.0",
+    "tslint": "^5.9.1",
+    "typescript": "^2.7.2"
+  },
+  "dependencies": {
+    "typescript-fsa": "^2.5.0"
+  }
+}
