@@ -1,4 +1,4 @@
-import { Action, ActionCreator, isType } from "typescript-fsa";
+import { Action, ActionCreator } from "typescript-fsa";
 
 /**
  * Interface for Reducer.
