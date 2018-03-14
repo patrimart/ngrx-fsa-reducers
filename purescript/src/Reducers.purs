@@ -1,23 +1,26 @@
 module Ngrx.Reducers where
 
 -- import Prelude
-import Data.Array (foldr)
+-- import Data.Array (foldr)
 
-import Ngrx.Actions (Action, Payload, isType)
+import Ngrx.Actions
 
-type Reducer s p m = s -> Action p m -> s
-type Handler s p = s -> Payload p -> s
-
-
-caseFn :: forall s p m. String -> Handler s p -> Reducer s p m
-caseFn t h = \s a -> if isType t a then h s a.payload else s
+type Reducer s m p r e = s -> Action m p r e -> s
+type Handler s p r e = s -> Payload p r e -> s
 
 
-casesFn :: forall s p m. Handler s p -> Array String -> Reducer s p m
-casesFn h = foldr (\t acc -> \s a -> acc ((caseFn t h) s a) a) (\s a -> s)
+caseFn :: String -> forall s p r e. Handler s p r e -> forall m. Reducer s m p r e
+caseFn t h = \s a -> if a <?> t then h s a.payload else s
+
+
+-- casesFn :: forall s p r e. Handler s p r e -> Array String -> forall m. Reducer s m p r e
+-- casesFn h = foldr (\t acc -> \s a -> acc ((caseFn t h) s a) a) (\s a -> s)
 
 
 -- reducerDefaultFn = true
 
+-- reducerFn' :: forall s p p2 m. Reducer s p m -> Reducer s p2 m
 
--- reducerFn = true
+
+-- reducerFn :: forall s p m. Array (Reducer s p m) -> Reducer s p m
+-- reducerFn = foldr (\r acc -> \s a -> acc (r s a) a) (\s a -> a)
