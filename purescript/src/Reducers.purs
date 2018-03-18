@@ -3,14 +3,14 @@ module Ngrx.Reducers where
 -- import Prelude
 -- import Data.Array (foldr)
 
-import Ngrx.Actions
+import Ngrx.Actions (Action)
 
-type Reducer s m p r e = s -> Action m p r e -> s
-type Handler s p r e = s -> Payload p r e -> s
+type Reducer s m p = s -> Action m p -> s
+-- type Handler s p r e = s -> Payload p r e -> s
 
 
-caseFn :: String -> forall s p r e. Handler s p r e -> forall m. Reducer s m p r e
-caseFn t h = \s a -> if a <?> t then h s a.payload else s
+-- caseFn :: String -> forall s p r e. Handler s p r e -> forall m. Reducer s m p
+-- caseFn t h = \s a -> if a.type == t then h s a.payload else s
 
 
 -- casesFn :: forall s p r e. Handler s p r e -> Array String -> forall m. Reducer s m p r e
