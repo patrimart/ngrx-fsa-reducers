@@ -5,7 +5,7 @@ module Ngrx.Reducers where
 
 import Ngrx.Actions (Action)
 
-type Reducer s m p = s -> Action m p -> s
+type Reducer s p = s -> Action p -> s
 -- type Handler s p r e = s -> Payload p r e -> s
 
 
