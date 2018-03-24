@@ -1,26 +1,25 @@
 module Ngrx.Reducers where
 
--- import Prelude
--- import Data.Array (foldr)
+import Prelude (id, otherwise, ($))
+import Data.Tuple (Tuple(..))
+import Data.Array (any)
 
 import Ngrx.Actions (Action)
 
-type Reducer s p = s -> Action p -> s
--- type Handler s p r e = s -> Payload p r e -> s
+type State s = s
+type Handler s p = State s -> Action p -> State s
+type Reducer s p = Tuple (Action p) (State s) -> State s
+
+-- |
+caseFn :: ∀ mp. (Action mp -> Boolean) -> ∀ s. Handler s mp -> Reducer s mp
+caseFn matcher reducer (Tuple action state)
+    | matcher action = reducer state action
+    | otherwise      = state
 
 
--- caseFn :: String -> forall s p r e. Handler s p r e -> forall m. Reducer s m p
--- caseFn t h = \s a -> if a.type == t then h s a.payload else s
+casesFn :: ∀ mp. Array (Action mp -> Boolean) -> ∀ s. Handler s mp -> Reducer s mp
+casesFn matchers = caseFn $ any id matchers
 
 
--- casesFn :: forall s p r e. Handler s p r e -> Array String -> forall m. Reducer s m p r e
--- casesFn h = foldr (\t acc -> \s a -> acc ((caseFn t h) s a) a) (\s a -> s)
-
-
--- reducerDefaultFn = true
-
--- reducerFn' :: forall s p p2 m. Reducer s p m -> Reducer s p2 m
-
-
--- reducerFn :: forall s p m. Array (Reducer s p m) -> Reducer s p m
--- reducerFn = foldr (\r acc -> \s a -> acc (r s a) a) (\s a -> a)
+switchFn :: ∀ mp s. Reducer s mp -> ∀ mp2 s. Reducer s mp2
+switchFn c = switchFn c
