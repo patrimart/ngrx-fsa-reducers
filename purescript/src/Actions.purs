@@ -10,45 +10,70 @@ module Ngrx.Actions
 ) where
 
 import Prelude
--- import Data.String (length, take)
+import Data.Record.Builder (build, merge)
+import Data.String (joinWith)
 
+-- | A payload of Unit value.
 type Empty = ( payload :: Unit )
 
+-- | A simple payload with a value.
 type Start p = ( payload :: p )
 
+-- | A Success payload with params and result.
 type Success p r =
     ( payload ::
         { params :: p
         , result :: r } )
 
+-- | A Failure payload with params and error.
 type Failure p e =
     ( payload ::
         { params :: p
         , error  :: e } )
 
+-- | A Meta record with payload.
 type Meta m pl =
     ( meta :: m
     | pl )
 
+-- | A basic FSA Action.
 type Action payload =
     { type    :: String
     , error   :: Boolean
     | payload }
 
-
--- data Payload p r e = None | Do p | Done p r | Failed p e
-
--- | Tests if an Action is of a type.
--- isType :: ∀ mp. Action mp -> String -> Boolean
--- isType a t = a.type == take (length a.type) t
-
 -- | Add metadata to an Action.
-withMeta :: ∀ m. m -> ∀ p. Action ( payload :: p) -> Action (payload :: p, meta :: m)
-withMeta m a = { type: a.type, error: a.error, meta: m, payload: a.payload }
+withMeta :: ∀ m. m -> ∀ p. Action p -> Action (Meta m p)
+withMeta m a = build (merge a) { meta: m }
 
-match :: String -> ∀ mp. Action mp -> Boolean
-match t a = t == a.type
+-- | An Action creator factory.
+createActionFactory :: String ->
+    { empty :: String -> { match :: ∀ mp. Action mp -> Boolean, build :: Action Empty }
+    , start :: String -> { match :: ∀ mp. Action mp -> Boolean, build :: ∀ p. p -> Action (Start p) }
+    , async :: String -> ∀ p r e.
+        { empty  :: { match :: ∀ mp. Action mp -> Boolean, build :: Action Empty }
+        , start  :: { match :: ∀ mp. Action mp -> Boolean, build :: p -> Action (Start p) }
+        , done   :: { match :: ∀ mp. Action mp -> Boolean, build :: p -> r -> Action (Success p r) }
+        , failed :: { match :: ∀ mp. Action mp -> Boolean, build :: p -> e -> Action (Failure p e) } } }
+createActionFactory t =
+    { empty : \t2 -> let tt = j [t, t2] in { match: ofType tt, build: createEmptyAction tt }
+    , start : \t2 -> let tt = j [t, t2] in { match: ofType tt, build: createStartAction tt }
+    , async : \t2 -> let tt = j [t, t2] in
+        { empty : let ttt = j [tt, "EMPTY"]  in { match: ofType ttt, build: createEmptyAction tt }
+        , start : let ttt = j [tt, "START"]  in { match: ofType ttt, build: createStartAction tt }
+        , done  : let ttt = j [tt, "DONE"]   in { match: ofType ttt, build: createDoneAction tt }
+        , failed: let ttt = j [tt, "FAILED"] in { match: ofType ttt, build: createFailedAction tt } } }
 
+
+-- | --------------------------------------------------------------------------
+-- | Private functions below
+
+j :: Array String -> String
+j = joinWith "___"
+
+-- | Tests if an Action is of (type :: String)
+ofType :: String -> ∀ mp. Action mp -> Boolean
+ofType t a = t == a.type
 
 createEmptyAction :: String -> Action Empty
 createEmptyAction t = { type: t, error: false, payload: unit }
@@ -61,21 +86,3 @@ createDoneAction t p r = { type: t, error: false, payload: { params: p, result: 
 
 createFailedAction :: String -> ∀ p. p -> ∀ e. e -> Action (Failure p e)
 createFailedAction t p e = { type: t, error: true, payload: { params: p, error: e } }
-
-
-createActionFactory :: String ->
-    { empty :: String -> { match :: ∀ mp. Action mp -> Boolean, build :: Action Empty }
-    , start :: String -> { match :: ∀ mp. Action mp -> Boolean, build :: ∀ p. p -> Action (Start p) }
-    , async :: String -> ∀ p r e.
-        { empty  :: { match :: ∀ mp. Action mp -> Boolean, build :: Action Empty }
-        , start  :: { match :: ∀ mp. Action mp -> Boolean, build :: p -> Action (Start p) }
-        , done   :: { match :: ∀ mp. Action mp -> Boolean, build :: p -> r -> Action (Success p r) }
-        , failed :: { match :: ∀ mp. Action mp -> Boolean, build :: p -> e -> Action (Failure p e) } } }
-createActionFactory t =
-    { empty : \t2 -> let tt = (t <> "::" <> t2) in { match: match tt, build: createEmptyAction tt }
-    , start : \t2 -> let tt = (t <> "::" <> t2) in { match: match tt, build: createStartAction tt }
-    , async : \t2 ->
-        { empty : let tt = (t <> "::" <> t2 <> "::EMPTY")  in { match: match tt, build: createEmptyAction tt }
-        , start : let tt = (t <> "::" <> t2 <> "::START")  in { match: match tt, build: createStartAction tt }
-        , done  : let tt = (t <> "::" <> t2 <> "::DONE")   in { match: match tt, build: createDoneAction tt }
-        , failed: let tt = (t <> "::" <> t2 <> "::FAILED") in { match: match tt, build: createFailedAction tt } } }
