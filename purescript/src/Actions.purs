@@ -5,11 +5,13 @@ module Ngrx.Actions
     , Failure
     , Meta
     , Action
+    , Matcher
     , withMeta
     , createActionFactory
 ) where
 
 import Prelude
+
 import Data.Record.Builder (build, merge)
 import Data.String (joinWith)
 
@@ -42,19 +44,22 @@ type Action payload =
     , error   :: Boolean
     | payload }
 
+-- | Matcher type alias.
+type Matcher = ∀ a. Action a -> Boolean
+
 -- | Add metadata to an Action.
 withMeta :: ∀ m. m -> ∀ p. Action p -> Action (Meta m p)
 withMeta m a = build (merge a) { meta: m }
 
 -- | An Action creator factory.
 createActionFactory :: String ->
-    { empty :: String -> { match :: ∀ mp. Action mp -> Boolean, build :: Action Empty }
-    , start :: String -> { match :: ∀ mp. Action mp -> Boolean, build :: ∀ p. p -> Action (Start p) }
+    { empty :: String -> { match :: Matcher, build :: Action Empty }
+    , start :: String -> { match :: Matcher, build :: ∀ p. p -> Action (Start p) }
     , async :: String -> ∀ p r e.
-        { empty  :: { match :: ∀ mp. Action mp -> Boolean, build :: Action Empty }
-        , start  :: { match :: ∀ mp. Action mp -> Boolean, build :: p -> Action (Start p) }
-        , done   :: { match :: ∀ mp. Action mp -> Boolean, build :: p -> r -> Action (Success p r) }
-        , failed :: { match :: ∀ mp. Action mp -> Boolean, build :: p -> e -> Action (Failure p e) } } }
+        { empty  :: { match :: Matcher, build :: Action Empty }
+        , start  :: { match :: Matcher, build :: p -> Action (Start p) }
+        , done   :: { match :: Matcher, build :: p -> r -> Action (Success p r) }
+        , failed :: { match :: Matcher, build :: p -> e -> Action (Failure p e) } } }
 createActionFactory t =
     { empty : \t2 -> let tt = j [t, t2] in { match: ofType tt, build: createEmptyAction tt }
     , start : \t2 -> let tt = j [t, t2] in { match: ofType tt, build: createStartAction tt }
@@ -69,7 +74,7 @@ createActionFactory t =
 -- | Private functions below
 
 j :: Array String -> String
-j = joinWith "___"
+j = joinWith "__"
 
 -- | Tests if an Action is of (type :: String)
 ofType :: String -> ∀ mp. Action mp -> Boolean

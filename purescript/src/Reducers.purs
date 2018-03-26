@@ -1,25 +1,31 @@
 module Ngrx.Reducers where
 
-import Prelude (id, otherwise, ($))
-import Data.Tuple (Tuple(..))
-import Data.Array (any)
+import Prelude
 
-import Ngrx.Actions (Action)
+import Data.Array (any, foldl)
+import Data.Foreign (isUndefined)
+import Unsafe.Coerce (unsafeCoerce)
 
-type State s = s
-type Handler s p = State s -> Action p -> State s
-type Reducer s p = Tuple (Action p) (State s) -> State s
+import Ngrx.Actions (Action, Matcher)
 
--- |
-caseFn :: ∀ mp. (Action mp -> Boolean) -> ∀ s. Handler s mp -> Reducer s mp
-caseFn matcher reducer (Tuple action state)
-    | matcher action = reducer state action
+
+-- | Reducer type alias: t -> s
+type Reducer s = ∀ p. Action p -> s -> s
+
+-- | Guard a reducer on action type.
+caseFn :: ∀ s. Matcher -> Reducer s -> Reducer s
+caseFn matcher reducer action state
+    | matcher action = reducer action state
     | otherwise      = state
 
+-- | Guard a reducer on action types.
+casesFn :: ∀ s. Array Matcher -> Reducer s -> Reducer s
+casesFn ms = caseFn $ \a -> any (\m -> m a) ms
 
-casesFn :: ∀ mp. Array (Action mp -> Boolean) -> ∀ s. Handler s mp -> Reducer s mp
-casesFn matchers = caseFn $ any id matchers
+-- | Compose caseFn reducers.
+-- switchFn :: ∀ s. Array (Reducer s) -> Reducer s
+-- switchFn rds = \a -> foldl (\rs r -> rs <<< r a) id rds
 
-
-switchFn :: ∀ mp s. Reducer s mp -> ∀ mp2 s. Reducer s mp2
-switchFn c = switchFn c
+-- | Init a reducer with initial state.
+withInitialState :: ∀ s. s -> Reducer s -> Reducer s
+withInitialState is rd = \p s -> if isUndefined $ unsafeCoerce s then rd p is else rd p s

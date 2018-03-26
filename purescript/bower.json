@@ -13,7 +13,9 @@
     "purescript-arrays": "^4.2.2",
     "purescript-strings": "^3.5.0",
     "purescript-tuples": "^4.1.0",
-    "purescript-record": "^0.2.6"
+    "purescript-record": "^0.2.6",
+    "purescript-foreign": "^4.0.1",
+    "purescript-unsafe-coerce": "^3.0.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0"
