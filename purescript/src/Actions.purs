@@ -15,6 +15,7 @@ import Prelude
 import Data.Record.Builder (build, merge)
 import Data.String (joinWith)
 
+
 -- | A payload of Unit value.
 type Empty = ( payload :: Unit )
 
@@ -34,9 +35,7 @@ type Failure p e =
         , error  :: e } )
 
 -- | A Meta record with payload.
-type Meta m pl =
-    ( meta :: m
-    | pl )
+type Meta m pl = ( meta :: m | pl )
 
 -- | A basic FSA Action.
 type Action payload =
@@ -45,7 +44,7 @@ type Action payload =
     | payload }
 
 -- | Matcher type alias.
-type Matcher = ∀ a. Action a -> Boolean
+type Matcher = ∀ p. Action p -> Boolean
 
 -- | Add metadata to an Action.
 withMeta :: ∀ m. m -> ∀ p. Action p -> Action (Meta m p)
@@ -77,7 +76,7 @@ j :: Array String -> String
 j = joinWith "__"
 
 -- | Tests if an Action is of (type :: String)
-ofType :: String -> ∀ mp. Action mp -> Boolean
+ofType :: String -> Matcher
 ofType t a = t == a.type
 
 createEmptyAction :: String -> Action Empty
