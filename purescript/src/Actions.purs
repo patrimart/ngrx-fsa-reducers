@@ -16,6 +16,10 @@ import Data.Record.Builder (build, merge)
 import Data.String (joinWith)
 
 
+test :: forall a. a -> a
+test = id <<< id <<< id
+
+
 -- | A payload of Unit value.
 type Empty = ( payload :: Unit )
 
@@ -44,7 +48,7 @@ type Action payload =
     | payload }
 
 -- | Matcher type alias.
-type Matcher = ∀ p. Action p -> Boolean
+type Matcher = String -> Boolean
 
 -- | Add metadata to an Action.
 withMeta :: ∀ m. m -> ∀ p. Action p -> Action (Meta m p)
@@ -77,7 +81,7 @@ j = joinWith "__"
 
 -- | Tests if an Action is of (type :: String)
 ofType :: String -> Matcher
-ofType t a = t == a.type
+ofType t a = t == a
 
 createEmptyAction :: String -> Action Empty
 createEmptyAction t = { type: t, error: false, payload: unit }
