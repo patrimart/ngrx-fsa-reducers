@@ -16,10 +16,6 @@ import Data.Record.Builder (build, merge)
 import Data.String (joinWith)
 
 
-test :: forall a. a -> a
-test = id <<< id <<< id
-
-
 -- | A payload of Unit value.
 type Empty = ( payload :: Unit )
 

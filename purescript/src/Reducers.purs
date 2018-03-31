@@ -1,4 +1,10 @@
-module Ngrx.Reducers where
+module Ngrx.Reducers
+    ( Reducer
+    , caseFn
+    , casesFn
+    , switchFn
+    , withInitialState
+) where
 
 import Prelude
 
